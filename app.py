@@ -13,7 +13,7 @@ class FilterRequest(BaseModel):
     metric: Optional[str] = None
     period: Optional[str] = None
     businessVertical: Optional[str] = None
-    target: Optional[str] = None
+    targetValue: Optional[float] = None
 
 
 
@@ -213,7 +213,7 @@ async def get_most_popular_buyers(request: FilterRequest):
     quarter = request.period
     metric = request.metric
     businessVertical = request.businessVertical
-    target = request.target
+    target = request.targetValue
 
     if quarter is None:
         quarter = "Q1 2025"
