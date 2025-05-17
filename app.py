@@ -289,9 +289,13 @@ async def get_most_popular_buyers(request: FilterRequest):
         ORDER BY target_value DESC
     """
 
-    industry_average_query = "select * from simulator_industry_average"
+    industry_average_query = """SELECT * 
+FROM Competitors_database.simulator_industry_average 
+WHERE BUName NOT IN ('Jumeirah', 'Ejadah')"""
 
-    simulation_query = "select * from simulator_values"
+    simulation_query = """SELECT * 
+FROM Competitors_database.simulator_values 
+where Business_Vertical not in ('Jumeirah', 'Ejadah')"""
 
     overall_trend = client.query(overallQuery)
     overall_trend_df = pd.DataFrame(overall_trend.result_rows, columns=overall_trend.column_names)
@@ -317,13 +321,18 @@ async def get_most_popular_buyers(request: FilterRequest):
     simulated_result_df = generate_projection_output(df_simulator=simulation_df, df_initiatives=initiative_df, df_industry_avg=industry_average_df)
 
     simulated_result_df = simulated_result_df[simulated_result_df['Metrics'] == metric]
+    simulated_result_df = simulated_result_df.merge(
+            target_df[['Business_Vertical', 'target_value']],
+            on='Business_Vertical',
+            how='left'  # or 'inner' if you only want rows with matching Business_Vertical
+        )
     simulated_result_df = status_calculation(simulated_result_df)
     # Merge target_df into simulated_result_df on Business_Vertical
-    simulated_result_df = simulated_result_df.merge(
-        target_df[['Business_Vertical', 'target_value']],
-        on='Business_Vertical',
-        how='left'  # or 'inner' if you only want rows with matching Business_Vertical
-    )
+    # simulated_result_df = simulated_result_df.merge(
+    #     target_df[['Business_Vertical', 'target_value']],
+    #     on='Business_Vertical',
+    #     how='left'  # or 'inner' if you only want rows with matching Business_Vertical
+    # )
     # Sum of 'target_value' excluding NaN
     target_sum = simulated_result_df['target_value'].sum(skipna=True)
 
@@ -351,6 +360,6 @@ async def get_most_popular_buyers(request: FilterRequest):
     }
 
     print(simulated_result_df)
+    # simulated_result_df.to_csv("simulated_result.csv", index=False)
     return final_json
-# Fetch results
-# print(result.result_rows)
+

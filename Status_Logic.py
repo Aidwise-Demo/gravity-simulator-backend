@@ -1,12 +1,12 @@
 import pandas as pd
-def status_calculation(df, s_target=0):
+def status_calculation(df):
     numeric_cols = ['Predicted_Actual_Value', 'current*',
-                    'Predicted_Industry_average', 'Cut_off_value']
+                    'Predicted_Industry_average', 'Cut_off_value',"target_value"]
     df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
 
-    # Compute gaps using the dynamic s_target
-    df['gap_curr'] = ((s_target - df['Predicted_Actual_Value']) / df['Cut_off_value']).round(4)
-    df['gap_expected'] = ((s_target - df['current*']) / df['Cut_off_value']).round(4)
+    # Compute gaps using the dynamic df["target_value"]
+    df['gap_curr'] = ((df["target_value"] - df['Predicted_Actual_Value']) / df['Cut_off_value']).round(4)
+    df['gap_expected'] = ((df["target_value"] - df['current*']) / df['Cut_off_value']).round(4)
     df['gap_industry'] = (
                 (df['Predicted_Industry_average'] - df['Predicted_Actual_Value']) / df['Cut_off_value']).round(4)
 
